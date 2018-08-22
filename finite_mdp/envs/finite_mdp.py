@@ -11,6 +11,7 @@ class FiniteMDP(gym.Env):
     def __init__(self):
         self.transition = np.array([])
         self.reward = np.array([])
+        self.terminal = np.array([])
         self.config = FiniteMDP.default_config()
         self.state = 0
         self.steps = 0
@@ -35,6 +36,10 @@ class FiniteMDP(gym.Env):
             self.transition = np.array(self.config["transition"])
         if "reward" in self.config:
             self.reward = np.array(self.config["reward"])
+        if "terminal" in self.config:
+            self.terminal = np.array(self.config["terminal"])
+        else:
+            self.terminal = np.zeros(np.shape(self.reward)[:0])
         self._deterministic_to_stochastic()
         self.observation_space = spaces.Discrete(np.shape(self.transition)[0])
         self.action_space = spaces.Discrete(np.shape(self.transition)[1])
@@ -57,9 +62,10 @@ class FiniteMDP(gym.Env):
     def step(self, action):
         reward = self.reward[self.state, action]
         probs = self.transition[self.state, action, :]
+        done = self.terminal[self.state] or self.steps > self.MAX_STEPS
         self.state = np.random.choice(np.arange(np.shape(self.transition)[0]), p=probs)
         self.steps += 1
-        return self.state, reward, self.steps > self.MAX_STEPS, None
+        return self.state, reward, done, None
 
     def render(self, mode='human'):
         pass
