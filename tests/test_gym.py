@@ -6,7 +6,16 @@ import finite_mdp
 
 def test_finite_mdp():
     env = gym.make('finite-mdp-v0')
-
+    env.configure({
+        "transition": [[1, 2],
+                       [0, 3],
+                       [2, 2],
+                       [3, 3]],
+        "reward": [[0, 1000],
+                   [0, -1000],
+                   [0, 0],
+                   [0, 0]]
+    })
     obs = env.reset()
     for i in range(3):
         action = env.action_space.sample()

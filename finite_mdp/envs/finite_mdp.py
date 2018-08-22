@@ -1,23 +1,43 @@
+import copy
+
 import gym
 from gym import spaces
 import numpy as np
 
 
 class FiniteMDP(gym.Env):
-    MAX_STEPS = 100
+    MAX_STEPS = 10
 
     def __init__(self):
-        self.transition = np.array([[1, 2],
-                                    [0, 3],
-                                    [2, 2],
-                                    [3, 3]])
-        self.reward = np.array([[0, 1000],
-                                [0, -1000],
-                                [0, 0],
-                                [0, 0]])
+        self.transition = np.array([])
+        self.reward = np.array([])
+        self.config = FiniteMDP.default_config()
         self.state = 0
         self.steps = 0
         self.reset()
+
+    @staticmethod
+    def default_config():
+        return dict(transition=[[0]],
+                    reward=[[0]])
+
+    def configure(self, config):
+        self.config.update(config)
+
+    def copy_with_config(self, config):
+        env_copy = copy.deepcopy(self)
+        env_copy.configure(config)
+        env_copy._load_config()
+        return env_copy
+
+    def _load_config(self):
+        if "transition" in self.config:
+            self.transition = np.array(self.config["transition"])
+        if "reward" in self.config:
+            self.reward = np.array(self.config["reward"])
+        self._deterministic_to_stochastic()
+        self.observation_space = spaces.Discrete(np.shape(self.transition)[0])
+        self.action_space = spaces.Discrete(np.shape(self.transition)[1])
 
     def _deterministic_to_stochastic(self):
         shape = np.shape(self.transition)
@@ -29,9 +49,8 @@ class FiniteMDP(gym.Env):
             self.transition = transition
 
     def reset(self):
-        self._deterministic_to_stochastic()
-        self.observation_space = spaces.Discrete(np.shape(self.transition)[0])
-        self.action_space = spaces.Discrete(np.shape(self.transition)[1])
+        self._load_config()
+        self.state = 0
         self.steps = 0
         return self.state
 
