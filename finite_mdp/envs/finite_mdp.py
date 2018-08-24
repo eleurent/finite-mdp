@@ -116,7 +116,7 @@ class StochasticMDP(DeterministicMDP):
         return config
 
 
-class FiniteMDP(gym.Env):
+class FiniteMDPEnv(gym.Env):
     MAX_STEPS = 10
 
     def __init__(self):
@@ -124,7 +124,7 @@ class FiniteMDP(gym.Env):
         self.np_random = None
         self.seed()
 
-        self.config = FiniteMDP.default_config()
+        self.config = FiniteMDPEnv.default_config()
         self.mdp = None
         self.steps = 0
         self.load_config()
@@ -157,7 +157,7 @@ class FiniteMDP(gym.Env):
 
     def step(self, action):
         state, reward, done, info = self.mdp.step(action, np_random=self.np_random)
-        done = done or self.steps > FiniteMDP.MAX_STEPS
+        done = done or self.steps > FiniteMDPEnv.MAX_STEPS
         self.steps += 1
         return state, reward, done, info
 
