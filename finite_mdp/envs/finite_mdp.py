@@ -60,8 +60,11 @@ class DeterministicMDP(MDP):
     def step(self, action, np_random=np.random):
         reward = self.reward[self.state, action]
         done = self.terminal[self.state]
-        self.state = self.transition[self.state, action]
+        self.state = self.next_state(self.state, action)
         return self.state, reward, done, self.to_config()
+
+    def next_state(self, state, action):
+        return self.transition[state, action]
 
     def randomize(self, np_random):
         self.transition = np_random.choice(range(np.shape(self.transition)[0]), size=np.shape(self.transition))
@@ -98,10 +101,13 @@ class StochasticMDP(DeterministicMDP):
 
     def step(self, action, np_random=np.random):
         reward = self.reward[self.state, action]
-        probs = self.transition[self.state, action, :]
         done = self.terminal[self.state]
-        self.state = np_random.choice(np.arange(np.shape(self.transition)[0]), p=probs)
+        self.state = self.next_state(self.state, action)
         return self.state, reward, done, self.to_config()
+
+    def next_state(self, state, action, np_random=np.random):
+        probs = self.transition[state, action, :]
+        return np_random.choice(np.arange(np.shape(self.transition)[0]), p=probs)
 
     @staticmethod
     def from_deterministic(mdp: DeterministicMDP):
