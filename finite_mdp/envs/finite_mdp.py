@@ -41,6 +41,8 @@ class MDP(object):
 
 
 class DeterministicMDP(MDP):
+    mode = "deterministic"
+
     def __init__(self, transition, reward, terminal=None, state=0):
         """
         :param transition: array of shape S x A
@@ -67,7 +69,7 @@ class DeterministicMDP(MDP):
 
     def to_config(self):
         return dict(
-            mode="deterministic",
+            mode=self.mode,
             transition=self.transition.tolist(),
             reward=self.reward.tolist(),
             terminal=self.terminal.tolist()
@@ -83,6 +85,8 @@ class DeterministicMDP(MDP):
 
 
 class StochasticMDP(DeterministicMDP):
+    mode = "stochastic"
+
     def __init__(self, transition, reward, terminal=None, state=0):
         """
         :param transition: array of size S x A x S
@@ -111,11 +115,6 @@ class StochasticMDP(DeterministicMDP):
     def randomize(self, np_random=np.random):
         self.transition = np_random.rand(*np.shape(self.transition))
         self.reward = np_random.rand(*np.shape(self.reward))
-
-    def to_config(self):
-        config = super(StochasticMDP, self).to_config()
-        config.update(dict(mode="stochastic"))
-        return config
 
 
 class FiniteMDPEnv(gym.Env):
