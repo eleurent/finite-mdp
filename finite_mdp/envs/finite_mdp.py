@@ -7,8 +7,8 @@ from gym.utils import seeding
 
 
 class MDP(object):
-    def __init__(self):
-        self.state = 0
+    def __init__(self, state=0):
+        self.state = state
         self.transition = None
         self.reward = None
         self.terminal = None
@@ -41,13 +41,14 @@ class MDP(object):
 
 
 class DeterministicMDP(MDP):
-    def __init__(self, transition, reward, terminal=None):
+    def __init__(self, transition, reward, terminal=None, state=0):
         """
         :param transition: array of shape S x A
         :param reward: array of shape S x A
         :param terminal: array of shape S
+        :param int state: initial state
         """
-        super(DeterministicMDP, self).__init__()
+        super(DeterministicMDP, self).__init__(state)
         self.transition = transition
         self.reward = reward
         self.terminal = terminal
@@ -82,13 +83,14 @@ class DeterministicMDP(MDP):
 
 
 class StochasticMDP(DeterministicMDP):
-    def __init__(self, transition, reward, terminal=None):
+    def __init__(self, transition, reward, terminal=None, state=0):
         """
         :param transition: array of size S x A x S
         :param reward:  array of shape S x A
         :param terminal:  array of shape S
+        :param int state: initial state
         """
-        super(StochasticMDP, self).__init__(transition, reward, terminal)
+        super(StochasticMDP, self).__init__(transition, reward, terminal, state)
 
     def step(self, action, np_random=np.random):
         reward = self.reward[self.state, action]
