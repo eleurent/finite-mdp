@@ -124,8 +124,6 @@ class StochasticMDP(DeterministicMDP):
 
 
 class FiniteMDPEnv(gym.Env):
-    MAX_STEPS = 10
-
     def __init__(self):
         # Seeding
         self.np_random = None
@@ -141,7 +139,8 @@ class FiniteMDPEnv(gym.Env):
     def default_config():
         return dict(mode="deterministic",
                     transition=[[0]],
-                    reward=[[0]])
+                    reward=[[0]],
+                    max_steps=100)
 
     def configure(self, config):
         self.config.update(config)
@@ -149,7 +148,7 @@ class FiniteMDPEnv(gym.Env):
 
     def copy_with_config(self, config):
         env_copy = copy.deepcopy(self)
-        env_copy.config = config
+        env_copy.config.update(config)
         env_copy.mdp.update(config)
         return env_copy
 
@@ -164,8 +163,8 @@ class FiniteMDPEnv(gym.Env):
 
     def step(self, action):
         state, reward, done, info = self.mdp.step(action, np_random=self.np_random)
-        done = done or self.steps > FiniteMDPEnv.MAX_STEPS
         self.steps += 1
+        done = done or self.steps >= self.config["max_steps"]
         return state, reward, done, info
 
     def render(self, mode='human'):
