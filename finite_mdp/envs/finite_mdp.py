@@ -56,6 +56,7 @@ class DeterministicMDP(MDP):
         self.terminal = terminal
         if terminal is None or not np.size(terminal):
             self.terminal = np.zeros(np.shape(transition)[0])
+        self.terminal = self.terminal.astype(bool)
 
     def step(self, action, np_random=np.random):
         reward = self.reward[self.state, action]
