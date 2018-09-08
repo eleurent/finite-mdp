@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 from gym import logger
 import numpy as np
 
-from finite_mdp.envs.mdp import DeterministicMDP
+from finite_mdp.mdp import DeterministicMDP
 
 
 class MDPViewer(object):

@@ -5,8 +5,8 @@ from gym import spaces
 import numpy as np
 from gym.utils import seeding
 
-from finite_mdp.envs.mdp import MDP
-from finite_mdp.envs.viewer import MDPViewer
+from finite_mdp.mdp import MDP
+from finite_mdp.viewer import MDPViewer
 
 
 class FiniteMDPEnv(gym.Env):
