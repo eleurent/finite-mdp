@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from finite_mdp.envs.finite_mdp import MDP, StochasticMDP
+from finite_mdp.envs.mdp import MDP, StochasticMDP
 
 
 def test_conversion():
