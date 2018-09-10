@@ -62,7 +62,7 @@ class DeterministicMDP(MDP):
     def next_state(self, state, action):
         return self.transition[state, action]
 
-    def randomize(self, np_random):
+    def randomize(self, np_random=np.random):
         self.transition = np_random.choice(range(np.shape(self.transition)[0]), size=np.shape(self.transition))
         self.reward = np_random.rand(*np.shape(self.reward))
 
