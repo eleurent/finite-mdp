@@ -4,7 +4,6 @@ import gym
 import finite_mdp
 
 
-
 def test_deterministic():
     env = gym.make('finite-mdp-v0')
     env.configure({

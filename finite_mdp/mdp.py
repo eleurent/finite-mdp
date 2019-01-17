@@ -25,10 +25,16 @@ class MDP(object):
             mdp = DeterministicMDP(transition, reward, terminal)
         elif mode == "stochastic":
             mdp = StochasticMDP(transition, reward, terminal)
+        elif mode == "garnet":
+            mdp = StochasticMDP.make_garnet(config.get("num_states"),
+                                            config.get("num_actions"),
+                                            config.get("num_transitions"),
+                                            config.get("reward_sparsity"))
+        elif mode == "uniform":
+            mdp = StochasticMDP.make_uniform(config.get("num_states"),
+                                             config.get("num_actions"))
         else:
             raise ValueError("Unknown MDP mode in configuration")
-        if config.get("random", False):
-            mdp.randomize(np_random)
         return mdp
 
     def to_config(self):
@@ -114,6 +120,36 @@ class StochasticMDP(DeterministicMDP):
                 new_transition[s, a, int(mdp.transition[s, a])] = 1
         return StochasticMDP(new_transition, mdp.reward, mdp.terminal)
 
-    def randomize(self, np_random=np.random):
-        self.transition = np_random.rand(*np.shape(self.transition))
-        self.reward = np_random.rand(*np.shape(self.reward))
+    @staticmethod
+    def make_garnet(num_states, num_actions, num_transitions, reward_sparsity, np_random=np.random):
+        """
+            Make a GARNET: an MDP with a given number of transitions at each (state,action) pair, and sparse reward
+        :param num_states: number of states
+        :param num_actions: number of rewards
+        :param num_transitions: number of transitions from each (state, action) pair
+        :param reward_sparsity: proportion of non-zero rewards
+        :param np_random: randomness source
+        :return: a GARNET Stochastic MDP
+        """
+        # Sample N random transitions for each state-action pair
+        transition = np.zeros((num_states, num_actions, num_states))
+        for s, a in np.ndindex((num_states, num_actions)):
+            next = np_random.choice(range(num_states), num_transitions)
+            cumulative = np.concatenate(([0], np.sort(np_random.random(num_transitions - 1)), [1]), axis=0)
+            for k in range(num_transitions):
+                transition[s, a, next[k]] += cumulative[k + 1] - cumulative[k]
+
+        # Sample N rewards uniformly distributed
+        num_sparsity = int(num_actions * num_states * reward_sparsity)
+        reward = np.zeros((num_states * num_actions))
+        reward[:num_sparsity] = np_random.rand(num_sparsity)
+        np.random.shuffle(reward)
+        reward = reward.reshape((num_states, num_actions))
+        return StochasticMDP(transition, reward)
+
+    @staticmethod
+    def make_uniform(num_states, num_actions, np_random=np.random):
+        transition = np_random.rand(num_states, num_actions, num_states)
+        transition /= np.sum(transition, axis=2, keepdims=True)
+        reward = np_random.rand(num_states, num_actions)
+        return StochasticMDP(transition, reward)
