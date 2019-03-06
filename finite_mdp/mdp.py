@@ -21,6 +21,8 @@ class MDP(object):
         transition = np.array(config.get("transition", []))
         reward = np.array(config.get("reward", []))
         terminal = np.array(config.get("terminal", []))
+        if "seed" in config:
+            np_random.seed(config["seed"])
         if mode == "deterministic":
             mdp = DeterministicMDP(transition, reward, terminal)
         elif mode == "stochastic":
@@ -29,10 +31,12 @@ class MDP(object):
             mdp = StochasticMDP.make_garnet(config.get("num_states"),
                                             config.get("num_actions"),
                                             config.get("num_transitions"),
-                                            config.get("reward_sparsity"))
+                                            config.get("reward_sparsity"),
+                                            np_random=np_random)
         elif mode == "uniform":
             mdp = StochasticMDP.make_uniform(config.get("num_states"),
-                                             config.get("num_actions"))
+                                             config.get("num_actions"),
+                                             np_random=np_random)
         else:
             raise ValueError("Unknown MDP mode in configuration")
         return mdp
@@ -135,7 +139,7 @@ class StochasticMDP(DeterministicMDP):
         transition = np.zeros((num_states, num_actions, num_states))
         for s, a in np.ndindex((num_states, num_actions)):
             next = np_random.choice(range(num_states), num_transitions)
-            cumulative = np.concatenate(([0], np.sort(np_random.random(num_transitions - 1)), [1]), axis=0)
+            cumulative = np.concatenate(([0], np.sort(np_random.rand(num_transitions - 1)), [1]), axis=0)
             for k in range(num_transitions):
                 transition[s, a, next[k]] += cumulative[k + 1] - cumulative[k]
 
@@ -143,7 +147,7 @@ class StochasticMDP(DeterministicMDP):
         num_sparsity = int(num_actions * num_states * reward_sparsity)
         reward = np.zeros((num_states * num_actions))
         reward[:num_sparsity] = np_random.rand(num_sparsity)
-        np.random.shuffle(reward)
+        np_random.shuffle(reward)
         reward = reward.reshape((num_states, num_actions))
         return StochasticMDP(transition, reward)
 
