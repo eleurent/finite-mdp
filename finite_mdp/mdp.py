@@ -63,7 +63,7 @@ class DeterministicMDP(MDP):
         reward = self.reward[self.state, action]
         done = self.terminal[self.state]
         self.state = self.next_state(self.state, action)
-        return self.state, reward, done, self.to_config()
+        return self.state, reward, done, {}
 
     def next_state(self, state, action):
         return self.transition[state, action]
@@ -105,7 +105,7 @@ class StochasticMDP(DeterministicMDP):
         reward = self.reward[self.state, action]
         done = self.terminal[self.state]
         self.state = self.next_state(self.state, action)
-        return self.state, reward, done, self.to_config()
+        return self.state, reward, done, {}
 
     def next_state(self, state, action, np_random=np.random):
         probs = self.transition[state, action, :]
