@@ -21,8 +21,6 @@ class MDP(object):
         transition = np.array(config.get("transition", []))
         reward = np.array(config.get("reward", []))
         terminal = np.array(config.get("terminal", []))
-        if "seed" in config:
-            np_random.seed(config["seed"])
         if mode == "deterministic":
             mdp = DeterministicMDP(transition, reward, terminal)
         elif mode == "stochastic":
