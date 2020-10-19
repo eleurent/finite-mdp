@@ -52,6 +52,7 @@ class FiniteMDPEnv(gym.Env):
 
     def reset(self):
         self.steps = 0
+        self.load_config()
         return self.mdp.reset()
 
     def step(self, action):
