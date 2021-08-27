@@ -19,7 +19,7 @@ class FiniteMDPEnv(gym.Env):
         self.seed()
 
         self.viewer = None
-        self.automatic_rendering_callback = None
+        self._monitor = None
         self.frames_to_render = self.VIDEO_FRAMES_PER_STEP
 
         self.config = FiniteMDPEnv.default_config()
@@ -63,9 +63,9 @@ class FiniteMDPEnv(gym.Env):
         return state, reward, done, info
 
     def _automatic_rendering(self):
-        if self.automatic_rendering_callback and self.viewer is not None:
+        if self._monitor and self.viewer is not None:
             for _ in range(self.frames_to_render):
-                self.automatic_rendering_callback()
+                self._monitor.video_recorder.capture_frame()
             self.frames_to_render = 0
 
     def render(self, mode='human'):
@@ -95,7 +95,7 @@ class FiniteMDPEnv(gym.Env):
         result = cls.__new__(cls)
         memo[id(self)] = result
         for k, v in self.__dict__.items():
-            if k not in ['viewer', 'automatic_rendering_callback']:
+            if k not in ['viewer', '_monitor']:
                 setattr(result, k, copy.deepcopy(v, memo))
             else:
                 setattr(result, k, None)
